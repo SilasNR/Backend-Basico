@@ -1,1 +1,5 @@
-export class CreateProdutoDto {}
+export class CreateProdutoDto {
+    nome: string;
+    ativo: boolean;
+  }
+  
