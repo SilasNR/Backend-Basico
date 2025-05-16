@@ -1,5 +1,5 @@
 export class CreateProdutoDto {
-    nome: string;
-    ativo: boolean;
+    codigo: string;
+    quantidade: number;
   }
   

@@ -6,10 +6,10 @@ export class Produto {
     id: number;
 
     @Column()
-    nome: string;
+    codigo: string;
 
-    @Column({ default: true})
-    ativo: boolean;
+    @Column()
+    quantidade: number;
 
     
 }

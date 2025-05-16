@@ -8,10 +8,19 @@ export class ProdutoService {
   private produtos: Produto[] = [];
 
   create(createProdutoDto: CreateProdutoDto): Produto {
+    const { codigo, quantidade } = createProdutoDto;
+
+    // Validação básica (opcional, se já tiver DTO com class-validator)
+    if (!codigo || quantidade === undefined) {
+      throw new Error('Dados inválidos');
+    }
+
     const novoProduto: Produto = {
       id: this.produtos.length + 1,
-      ...createProdutoDto,
+      codigo,
+      quantidade,
     };
+
     this.produtos.push(novoProduto);
     return novoProduto;
   }
@@ -19,6 +28,7 @@ export class ProdutoService {
   findAll(): Produto[] {
     return this.produtos;
   }
+
 
   findOne(id: number) {
     return `This action returns a #${id} produto`;
