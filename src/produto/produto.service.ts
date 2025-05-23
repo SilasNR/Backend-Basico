@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { Produto } from './entities/produto.entity';
@@ -6,6 +6,7 @@ import { Produto } from './entities/produto.entity';
 @Injectable()
 export class ProdutoService {
   private produtos: Produto[] = [];
+  produtoRepository: any;
 
   create(createProdutoDto: CreateProdutoDto): Produto {
     const { codigo, quantidade } = createProdutoDto;
@@ -38,7 +39,13 @@ export class ProdutoService {
     return `This action updates a #${id} produto`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} produto`;
+  async remove(id: number) {
+    const produto = await this.produtoRepository.findOne({ where: { id } });
+
+    if (!produto) {
+      throw new NotFoundException(`Produto com ID ${id} não encontrado`);
+    }
+
+    await this.produtoRepository.remove(produto);
   }
 }
