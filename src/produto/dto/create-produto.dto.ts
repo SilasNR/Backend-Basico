@@ -1,5 +1,9 @@
-export class CreateProdutoDto {
+import { IsString, IsNumber } from 'class-validator';
 
-    quantidade: number;
-  }
-  
+export class CreateProdutoDto {
+  @IsString()
+  codigo: string;
+
+  @IsNumber()
+  quantidade: number;
+}
