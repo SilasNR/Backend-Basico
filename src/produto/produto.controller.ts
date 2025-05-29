@@ -35,10 +35,11 @@ export class ProdutoController {
 
   @Post('delete-many')
   async removeMany(@Body() ids: number[]) {
+    console.log('IDs recebidos para deletar:', ids);
     return this.produtoService.removeMany(ids);
   }
 
-  // @Delete()
+  // @Delete('delete-many')
   // async removeMany(@Body() ids: number[]) {
   //   return this.produtoService.removeMany(ids);
   // }

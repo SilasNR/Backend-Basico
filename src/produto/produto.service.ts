@@ -1,64 +1,39 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateProdutoDto } from './dto/create-produto.dto';
-import { UpdateProdutoDto } from './dto/update-produto.dto';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Produto } from './entities/produto.entity';
-import { In } from 'typeorm';
 
 @Injectable()
 export class ProdutoService {
-  private produtos: Produto[] = [];
-  produtoRepository: any;
+  constructor(
+    @InjectRepository(Produto)
+    private produtoRepository: Repository<Produto>,
+  ) {}
 
-  create(createProdutoDto: CreateProdutoDto): Produto {
-    const { codigo, quantidade } = createProdutoDto;
-
-    // Validação básica (opcional, se já tiver DTO com class-validator)
-    if (!codigo || quantidade === undefined) {
-      throw new Error('Dados inválidos');
-    }
-
-    const novoProduto: Produto = {
-      id: this.produtos.length + 1,
-      codigo,
-      quantidade,
-    };
-
-    this.produtos.push(novoProduto);
-    return novoProduto;
+  async create(data: { codigo: string; quantidade: number }) {
+    const produto = this.produtoRepository.create(data);
+    return this.produtoRepository.save(produto);
   }
 
-  findAll(): Produto[] {
-    return this.produtos;
+  findAll() {
+    return this.produtoRepository.find();
   }
-
 
   findOne(id: number) {
-    return `This action returns a #${id} produto`;
+    return this.produtoRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateProdutoDto: UpdateProdutoDto) {
-    return `This action updates a #${id} produto`;
+  update(id: number, updateProdutoDto: Partial<Produto>) {
+    return this.produtoRepository.update(id, updateProdutoDto);
   }
 
-  async remove(id: number) {
-    const produto = await this.produtoRepository.findOne({ where: { id } });
-
-    if (!produto) {
-      throw new NotFoundException(`Produto com ID ${id} não encontrado`);
-    }
-
-    await this.produtoRepository.remove(produto);
+  remove(id: number) {
+    return this.produtoRepository.delete(id);
   }
 
+  // 🔥 Deletar vários
   async removeMany(ids: number[]) {
-    const produtos = await this.produtoRepository.findBy({ id: In(ids) });
-
-    if (produtos.length === 0) {
-      throw new NotFoundException(`Nenhum produto encontrado`);
-    }
-
-    await this.produtoRepository.remove(produtos);
-
-    return { message: `${produtos.length} produtos deletados com sucesso.` };
+    console.log('IDs recebidos para deletar:', ids);
+    return this.produtoRepository.delete(ids);
   }
 }
