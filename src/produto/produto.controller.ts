@@ -33,13 +33,13 @@ export class ProdutoController {
     return this.produtoService.remove(+id);
   }
 
-  // @Post('delete-many')
-  // async removeMany(@Body() ids: number[]) {
-  //   return this.produtoService.removeMany(ids);
-  // }
-
-  @Delete()
+  @Post('delete-many')
   async removeMany(@Body() ids: number[]) {
     return this.produtoService.removeMany(ids);
   }
+
+  // @Delete()
+  // async removeMany(@Body() ids: number[]) {
+  //   return this.produtoService.removeMany(ids);
+  // }
 }
