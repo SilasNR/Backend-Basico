@@ -5,7 +5,7 @@ import { UpdateProdutoDto } from './dto/update-produto.dto';
 
 @Controller('produtos')
 export class ProdutoController {
-  constructor(private readonly produtoService: ProdutoService) {}
+  constructor(private readonly produtoService: ProdutoService) { }
 
   @Post()
   create(@Body() createProdutoDto: CreateProdutoDto) {
@@ -30,5 +30,15 @@ export class ProdutoController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.produtoService.remove(+id);
+  }
+
+  // @Delete()
+  // async removeMany(@Body() ids: number[]) {
+  //   return this.produtoService.removeMany(ids);
+  // }
+
+  @Post('delete-many')
+  removeMany(@Body() ids: number[]) {
+    return this.produtoService.removeMany(ids);
   }
 }

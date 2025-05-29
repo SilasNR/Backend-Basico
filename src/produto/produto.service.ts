@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { Produto } from './entities/produto.entity';
+import { In } from 'typeorm';
 
 @Injectable()
 export class ProdutoService {
@@ -47,5 +48,17 @@ export class ProdutoService {
     }
 
     await this.produtoRepository.remove(produto);
+  }
+
+  async removeMany(ids: number[]) {
+    const produtos = await this.produtoRepository.findBy({ id: In(ids) });
+
+    if (produtos.length === 0) {
+      throw new NotFoundException(`Nenhum produto encontrado`);
+    }
+
+    await this.produtoRepository.remove(produtos);
+
+    return { message: `${produtos.length} produtos deletados com sucesso.` };
   }
 }
