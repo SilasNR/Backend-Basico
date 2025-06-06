@@ -11,4 +11,4 @@ import { Produto } from './entities/produto.entity';
   providers: [ProdutoService],
   controllers: [ProdutoController],
 })
-export class ProdutoModule {}
+export class ProdutoModule { }
