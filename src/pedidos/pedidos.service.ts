@@ -21,6 +21,8 @@ export class PedidosService {
       numero: data.numero,
       cliente: data.cliente,
     });
+    console.log('Produtos recebidos no pedido:', data.produtos);
+
     const pedidoSalvo = await this.pedidoRepository.save(pedido);
 
     const lista = data.produtos.map((produto) =>
@@ -30,6 +32,7 @@ export class PedidosService {
         quantidade: produto.quantidade,
       })
     );
+    console.log('Lista criada:', lista);
 
     await this.pedidoListaRepository.save(lista);
 
