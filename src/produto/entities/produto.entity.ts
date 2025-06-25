@@ -9,5 +9,8 @@ export class Produto {
   codigo: string;
 
   @Column()
+  observacao: string;
+
+  @Column()
   quantidade: number;
 }

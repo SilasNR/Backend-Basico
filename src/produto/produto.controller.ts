@@ -8,7 +8,7 @@ export class ProdutoController {
   constructor(private readonly produtoService: ProdutoService) { }
 
   @Post()
-  create(@Body() body: { codigo: string; quantidade: number }) {
+  create(@Body() body: { codigo: string; observacao: string; quantidade: number}) {
     console.log(body);
     return this.produtoService.create(body);
   }

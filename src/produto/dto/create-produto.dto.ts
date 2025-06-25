@@ -4,6 +4,9 @@ export class CreateProdutoDto {
   @IsString()
   codigo: string;
 
+  @IsString()
+  observacao: string;
+
   @IsNumber()
   quantidade: number;
 }
