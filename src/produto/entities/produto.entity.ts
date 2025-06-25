@@ -13,4 +13,10 @@ export class Produto {
 
   @Column()
   quantidade: number;
+
+  @Column()
+  pacote: number;
+
+  @Column()
+  caixa: number;
 }

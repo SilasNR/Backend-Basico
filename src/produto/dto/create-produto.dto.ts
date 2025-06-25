@@ -9,4 +9,10 @@ export class CreateProdutoDto {
 
   @IsNumber()
   quantidade: number;
+
+  @IsNumber()
+  pacote: number;
+  
+  @IsNumber()
+  caixa: number;
 }
