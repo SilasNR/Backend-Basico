@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 //import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pedido } from './entities/pedido.entity'
 import { PedidoLista } from '../pedido-lista/entities/pedido-lista.entity';
+import { Produto } from '../produto/entities/produto.entity';
 
 @Injectable()
 export class PedidosService {
@@ -14,6 +15,9 @@ export class PedidosService {
 
     @InjectRepository(PedidoLista)
     private pedidoListaRepository: Repository<PedidoLista>,
+
+    @InjectRepository(Produto)
+    private produtoRepository: Repository<Produto>,
   ) { }
 
   async create(data: { numero: number; cliente: string, produtos: any[] }) {
@@ -35,6 +39,22 @@ export class PedidosService {
     console.log('Lista criada:', lista);
 
     await this.pedidoListaRepository.save(lista);
+
+    ///////Altera a quantidade de pecas no produto
+    for(const produto of data.produtos){
+      const produtoAtual = await this.produtoRepository.findOneBy({codigo: produto.codigo});
+
+      if(!produtoAtual){
+        throw new NotFoundException(`Produto com código ${produto.codigo} não encontrado`);
+      }
+
+      if(produtoAtual.quantidade < produto.quantidade) {
+        throw new BadRequestException(`Estoque induficiente para o produto ${produto.codigo}`);
+      }
+
+      produtoAtual.quantidade -= produto.quantidade;
+      await this.produtoRepository.save(produtoAtual);
+    }
 
     // Retorna o pedido com a lista
     return {
