@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { PedidoLista } from '../../pedido-lista/entities/pedido-lista.entity';
+import { PedidoLista } from './pedido-lista.entity';
 
 @Entity()
 export class Pedido {

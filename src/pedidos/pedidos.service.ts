@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-//import { CreatePedidoDto } from './dto/create-pedido.dto';
+import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pedido } from './entities/pedido.entity'
-import { PedidoLista } from '../pedido-lista/entities/pedido-lista.entity';
+import { PedidoLista } from './entities/pedido-lista.entity';
 import { Produto } from '../produto/entities/produto.entity';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class PedidosService {
     private produtoRepository: Repository<Produto>,
   ) { }
 
-  async create(data: { numero: number; cliente: string, produtos: any[] }) {
+  async create(data: CreatePedidoDto) {
     const pedido = this.pedidoRepository.create({
       numero: data.numero,
       cliente: data.cliente,
@@ -32,7 +32,7 @@ export class PedidosService {
     const lista = data.produtos.map((produto) =>
       this.pedidoListaRepository.create({
         pedido: pedidoSalvo, // Faz o relacionamento
-        codigoProduto: produto.codigo,
+        codigo: Number(produto.codigo),
         quantidade: produto.quantidade,
       })
     );

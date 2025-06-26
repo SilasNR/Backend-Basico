@@ -6,7 +6,6 @@ import { Produto } from './produto/entities/produto.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PedidosModule } from './pedidos/pedidos.module';
-import { PedidoListaModule } from './pedido-lista/pedido-lista.module';
 
 @Module({
   imports: [
@@ -42,7 +41,6 @@ import { PedidoListaModule } from './pedido-lista/pedido-lista.module';
 
     ProdutoModule,
     PedidosModule,
-    PedidoListaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

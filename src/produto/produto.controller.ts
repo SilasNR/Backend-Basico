@@ -7,10 +7,16 @@ import { UpdateProdutoDto } from './dto/update-produto.dto';
 export class ProdutoController {
   constructor(private readonly produtoService: ProdutoService) { }
 
+  // @Post()
+  // create(@Body() body: { codigo: string; observacao: string; quantidade: number; pacote: number; caixa: number}) {
+  //   console.log(body);
+  //   return this.produtoService.create(body);
+  // }
+
   @Post()
-  create(@Body() body: { codigo: string; observacao: string; quantidade: number; pacote: number; caixa: number}) {
-    console.log(body);
-    return this.produtoService.create(body);
+  create(@Body() createProdutoDto: CreateProdutoDto) {
+    console.log(createProdutoDto);
+    return this.produtoService.create(createProdutoDto);
   }
 
   @Get()

@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Pedido } from '../../pedidos/entities/pedido.entity';
+import { Pedido } from './pedido.entity';
 
 @Entity()
 export class PedidoLista {
@@ -7,7 +7,7 @@ export class PedidoLista {
     id: number;
 
     @Column()
-    codigoProduto: number;
+    codigo: number;
 
     @Column()
     quantidade: number;
