@@ -41,14 +41,14 @@ export class PedidosService {
     await this.pedidoListaRepository.save(lista);
 
     ///////Altera a quantidade de pecas no produto
-    for(const produto of data.produtos){
-      const produtoAtual = await this.produtoRepository.findOneBy({codigo: produto.codigo});
+    for (const produto of data.produtos) {
+      const produtoAtual = await this.produtoRepository.findOneBy({ codigo: produto.codigo });
 
-      if(!produtoAtual){
+      if (!produtoAtual) {
         throw new NotFoundException(`Produto com código ${produto.codigo} não encontrado`);
       }
 
-      if(produtoAtual.quantidade < produto.quantidade) {
+      if (produtoAtual.quantidade < produto.quantidade) {
         throw new BadRequestException(`Estoque induficiente para o produto ${produto.codigo}`);
       }
 
@@ -81,7 +81,31 @@ export class PedidosService {
     return `This action updates a #${id} pedido`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} pedido`;
-  }
+  // async remove(id: number) {
+  //   const pedido = await this.pedidoRepository.findOne({
+  //     where: { id },
+  //     relations: ['lista'],
+  //   });
+
+  //   if (!pedido) {
+  //     throw new NotFoundException(`Pedido com ID ${id} não encontrado`);
+  //   }
+
+  //   // Repor o estoque dos produtos
+  //   for (const produto of pedido.lista) {
+  //     const produto = await this.produtoRepository.findOneBy({ codigo: produto.codigo  });
+  //     if (produto) {
+  //       produto.quantidade += produto.quantidade;
+  //       await this.produtoRepository.save(produto);
+  //     }
+  //   }
+
+  //   // Remove a lista primeiro (opcional, dependendo do cascade)
+  //   await this.pedidoListaRepository.remove(pedido.lista);
+
+  //   // Remove o pedido
+  //   await this.pedidoRepository.remove(pedido);
+
+  //   return { message: `Pedido #${id} removido com sucesso` };
+  // }
 }
