@@ -1,9 +1,13 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Pedido } from './entities/pedido.entity'
+import { Pedido } from './entities/pedido.entity';
 import { PedidoLista } from './entities/pedido-lista.entity';
 import { Produto } from '../produto/entities/produto.entity';
 
@@ -18,7 +22,7 @@ export class PedidosService {
 
     @InjectRepository(Produto)
     private produtoRepository: Repository<Produto>,
-  ) { }
+  ) {}
 
   async create(data: CreatePedidoDto) {
     const pedido = this.pedidoRepository.create({
@@ -34,7 +38,7 @@ export class PedidosService {
         pedido: pedidoSalvo, // Faz o relacionamento
         codigo: Number(produto.codigo),
         quantidade: produto.quantidade,
-      })
+      }),
     );
     console.log('Lista criada:', lista);
 
@@ -42,14 +46,20 @@ export class PedidosService {
 
     ///////Altera a quantidade de pecas no produto
     for (const produto of data.produtos) {
-      const produtoAtual = await this.produtoRepository.findOneBy({ codigo: produto.codigo });
+      const produtoAtual = await this.produtoRepository.findOneBy({
+        codigo: produto.codigo,
+      });
 
       if (!produtoAtual) {
-        throw new NotFoundException(`Produto com código ${produto.codigo} não encontrado`);
+        throw new NotFoundException(
+          `Produto com código ${produto.codigo} não encontrado`,
+        );
       }
 
       if (produtoAtual.quantidade < produto.quantidade) {
-        throw new BadRequestException(`Estoque induficiente para o produto ${produto.codigo}`);
+        throw new BadRequestException(
+          `Estoque induficiente para o produto ${produto.codigo}`,
+        );
       }
 
       produtoAtual.quantidade -= produto.quantidade;
@@ -62,7 +72,6 @@ export class PedidosService {
       lista,
     };
   }
-
 
   findAll() {
     return this.pedidoRepository.find({
@@ -81,31 +90,33 @@ export class PedidosService {
     return `This action updates a #${id} pedido`;
   }
 
-  // async remove(id: number) {
-  //   const pedido = await this.pedidoRepository.findOne({
-  //     where: { id },
-  //     relations: ['lista'],
-  //   });
+  async remove(id: number) {
+    const pedido = await this.pedidoRepository.findOne({
+      where: { id },
+      relations: ['lista'],
+    });
 
-  //   if (!pedido) {
-  //     throw new NotFoundException(`Pedido com ID ${id} não encontrado`);
-  //   }
+    if (!pedido) {
+      throw new NotFoundException(`Pedido com ID ${id} não encontrado`);
+    }
 
-  //   // Repor o estoque dos produtos
-  //   for (const produto of pedido.lista) {
-  //     const produto = await this.produtoRepository.findOneBy({ codigo: produto.codigo  });
-  //     if (produto) {
-  //       produto.quantidade += produto.quantidade;
-  //       await this.produtoRepository.save(produto);
-  //     }
-  //   }
+    // // Repor o estoque dos produtos
+    // for (const produto of pedido.lista) {
+    //   const produto = await this.produtoRepository.findOneBy({
+    //     codigo: produto.codigo,
+    //   });
+    //   if (produto) {
+    //     produto.quantidade += produto.quantidade;
+    //     await this.produtoRepository.save(produto);
+    //   }
+    // }
 
-  //   // Remove a lista primeiro (opcional, dependendo do cascade)
-  //   await this.pedidoListaRepository.remove(pedido.lista);
+    // Remove a lista primeiro (opcional, dependendo do cascade)
+    await this.pedidoListaRepository.remove(pedido.lista);
 
-  //   // Remove o pedido
-  //   await this.pedidoRepository.remove(pedido);
+    // Remove o pedido
+    await this.pedidoRepository.remove(pedido);
 
-  //   return { message: `Pedido #${id} removido com sucesso` };
-  // }
+    return { message: `Pedido #${id} removido com sucesso` };
+  }
 }
