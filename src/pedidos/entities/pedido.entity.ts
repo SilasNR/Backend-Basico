@@ -14,16 +14,16 @@ export class Pedido {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'varchar', length: 50 })
   numero: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 255 })
   cliente: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 18, nullable: true })
   cnpj: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 9, nullable: true })
   cep: string | null;
 
   @Column({
