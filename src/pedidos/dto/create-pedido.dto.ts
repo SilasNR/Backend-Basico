@@ -1,4 +1,11 @@
-import { IsString, IsNumber, IsArray, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsArray,
+  ValidateNested,
+  IsOptional,
+  isNumber,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 class ProdutoDto {
@@ -10,11 +17,35 @@ class ProdutoDto {
 }
 
 export class CreatePedidoDto {
-  @IsNumber()
-  numero: number;
+  @IsString()
+  numero: string;
 
   @IsString()
   cliente: string;
+
+  @IsString()
+  @IsOptional()
+  cnpj?: string;
+
+  @IsString()
+  @IsOptional()
+  cep?: string;
+
+  @IsNumber()
+  @IsOptional()
+  valor?: number;
+
+  @IsNumber()
+  @IsOptional()
+  peso?: number;
+
+  @IsNumber()
+  @IsOptional()
+  volume?: number;
+
+  @IsNumber()
+  @IsOptional()
+  cubagem?: number;
 
   @IsArray()
   @ValidateNested({ each: true })

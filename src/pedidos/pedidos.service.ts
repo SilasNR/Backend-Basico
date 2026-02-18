@@ -6,71 +6,78 @@ import {
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Pedido } from './entities/pedido.entity';
 import { PedidoLista } from './entities/pedido-lista.entity';
 import { Produto } from '../produto/entities/produto.entity';
+import { Repository, DataSource } from 'typeorm';
 
 @Injectable()
 export class PedidosService {
   constructor(
     @InjectRepository(Pedido)
     private pedidoRepository: Repository<Pedido>,
-
     @InjectRepository(PedidoLista)
     private pedidoListaRepository: Repository<PedidoLista>,
-
     @InjectRepository(Produto)
     private produtoRepository: Repository<Produto>,
+    private dataSource: DataSource,
   ) {}
 
   async create(data: CreatePedidoDto) {
-    const pedido = this.pedidoRepository.create({
-      numero: data.numero,
-      cliente: data.cliente,
-    });
-    console.log('Produtos recebidos no pedido:', data.produtos);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const pedidoSalvo = await this.pedidoRepository.save(pedido);
-
-    const lista = data.produtos.map((produto) =>
-      this.pedidoListaRepository.create({
-        pedido: pedidoSalvo, // Faz o relacionamento
-        codigo: Number(produto.codigo),
-        quantidade: produto.quantidade,
-      }),
-    );
-    console.log('Lista criada:', lista);
-
-    await this.pedidoListaRepository.save(lista);
-
-    ///////Altera a quantidade de pecas no produto
-    for (const produto of data.produtos) {
-      const produtoAtual = await this.produtoRepository.findOneBy({
-        codigo: produto.codigo,
+    try {
+      // 1. Criar o Pedido via Manager
+      const pedido = queryRunner.manager.create(Pedido, {
+        ...data, // Atalho se os nomes forem iguais
+        numero: data.numero.toString(),
       });
 
-      if (!produtoAtual) {
-        throw new NotFoundException(
-          `Produto com código ${produto.codigo} não encontrado`,
-        );
+      const pedidoSalvo = await queryRunner.manager.save(pedido);
+
+      const itensLista: PedidoLista[] = [];
+
+      for (const item of data.produtos) {
+        // BUSCA COM LOCK: Impede que outro processo altere este produto
+        // enquanto esta transação não terminar.
+        const produtoAtual = await queryRunner.manager.findOne(Produto, {
+          where: { codigo: item.codigo },
+          lock: { mode: 'pessimistic_write' },
+        });
+
+        if (!produtoAtual) {
+          throw new NotFoundException(`Produto ${item.codigo} não encontrado`);
+        }
+
+        if (produtoAtual.quantidade < item.quantidade) {
+          throw new BadRequestException(`Estoque insuficiente: ${item.codigo}`);
+        }
+
+        // 2. Criar item da lista via Manager
+        const novoItemLista = queryRunner.manager.create(PedidoLista, {
+          pedido: pedidoSalvo,
+          codigo: Number(item.codigo),
+          quantidade: item.quantidade,
+        });
+        itensLista.push(novoItemLista);
+
+        // 3. Atualizar estoque
+        produtoAtual.quantidade -= item.quantidade;
+        await queryRunner.manager.save(produtoAtual);
       }
 
-      if (produtoAtual.quantidade < produto.quantidade) {
-        throw new BadRequestException(
-          `Estoque induficiente para o produto ${produto.codigo}`,
-        );
-      }
+      await queryRunner.manager.save(itensLista);
+      await queryRunner.commitTransaction();
 
-      produtoAtual.quantidade -= produto.quantidade;
-      await this.produtoRepository.save(produtoAtual);
+      return { ...pedidoSalvo, lista: itensLista };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err; // O NestJS tratará o BadRequest/NotFound automaticamente
+    } finally {
+      await queryRunner.release();
     }
-
-    // Retorna o pedido com a lista
-    return {
-      ...pedidoSalvo,
-      lista,
-    };
   }
 
   findAll() {
@@ -100,23 +107,9 @@ export class PedidosService {
       throw new NotFoundException(`Pedido com ID ${id} não encontrado`);
     }
 
-    // // Repor o estoque dos produtos
-    // for (const produto of pedido.lista) {
-    //   const produto = await this.produtoRepository.findOneBy({
-    //     codigo: produto.codigo,
-    //   });
-    //   if (produto) {
-    //     produto.quantidade += produto.quantidade;
-    //     await this.produtoRepository.save(produto);
-    //   }
-    // }
+    // SoftRemove marca o deletedAt e também faz cascade para a lista se configurado
+    await this.pedidoRepository.softRemove(pedido);
 
-    // Remove a lista primeiro (opcional, dependendo do cascade)
-    await this.pedidoListaRepository.remove(pedido.lista);
-
-    // Remove o pedido
-    await this.pedidoRepository.remove(pedido);
-
-    return { message: `Pedido #${id} removido com sucesso` };
+    return { message: `Pedido #${id} enviado para a lixeira` };
   }
 }
