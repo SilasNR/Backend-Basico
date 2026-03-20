@@ -1,9 +1,10 @@
-import {IsNumber } from 'class-validator';
+import { IsNumber, Min } from 'class-validator';
 
 export class CreatePedidoListaDto {
-    @IsNumber()
-    codigoProduto : number;
+  @IsNumber()
+  codigo: number; // Alterado para 'codigo' para bater com o loop do Service
 
-    @IsNumber()
-    quantidade : number;
+  @IsNumber()
+  @Min(1, { message: 'A quantidade deve ser pelo menos 1' })
+  quantidade: number;
 }
