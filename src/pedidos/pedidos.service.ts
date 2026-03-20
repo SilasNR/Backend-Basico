@@ -29,22 +29,15 @@ export class PedidosService {
     await queryRunner.startTransaction();
 
     try {
-      // 1. Criar o Pedido via Manager
-      const pedido = queryRunner.manager.create(Pedido, {
-        ...data, // Atalho se os nomes forem iguais
-        numero: data.numero.toString(),
-      });
-
-      const pedidoSalvo = await queryRunner.manager.save(pedido);
-
+      let somaCubagemBruta = 0; // Acumulador da cubagem de todos os produtos
+      let volumeTotalCalculado = 0; // Soma das quantidades
       const itensLista: PedidoLista[] = [];
 
+      // 1. Processamento dos Itens
       for (const item of data.produtos) {
-        // BUSCA COM LOCK: Impede que outro processo altere este produto
-        // enquanto esta transação não terminar.
         const produtoAtual = await queryRunner.manager.findOne(Produto, {
           where: { codigo: item.codigo },
-          lock: { mode: 'pessimistic_write' },
+          lock: { mode: 'pessimistic_write' }, // Bloqueia o produto para evitar venda dupla
         });
 
         if (!produtoAtual) {
@@ -55,27 +48,53 @@ export class PedidosService {
           throw new BadRequestException(`Estoque insuficiente: ${item.codigo}`);
         }
 
-        // 2. Criar item da lista via Manager
+        // CÁLCULO DA CUBAGEM DO ITEM:
+        // Multiplicamos a cubagem unitária do cadastro pela quantidade pedida
+        const cubagemDoItem =
+          Number(produtoAtual.cubagem || 0) * item.quantidade;
+        somaCubagemBruta += cubagemDoItem;
+
+        // VOLUME:
+        // Soma das quantidades (ex: 10 unidades de A + 5 unidades de B = 15 volumes)
+        volumeTotalCalculado += item.quantidade;
+
+        // Preparar item para a tabela PedidoLista (Relacionamento)
         const novoItemLista = queryRunner.manager.create(PedidoLista, {
-          pedido: pedidoSalvo,
           codigo: Number(item.codigo),
           quantidade: item.quantidade,
         });
         itensLista.push(novoItemLista);
 
-        // 3. Atualizar estoque
+        // Atualizar estoque
         produtoAtual.quantidade -= item.quantidade;
         await queryRunner.manager.save(produtoAtual);
       }
 
-      await queryRunner.manager.save(itensLista);
-      await queryRunner.commitTransaction();
+      // 2. APLICAÇÃO DA REGRA DOS 1000:
+      // A cubagem total do pedido é a soma de todos os produtos dividida por 1000
+      const cubagemFinalPedido = somaCubagemBruta / 1000;
 
-      return { ...pedidoSalvo, lista: itensLista };
+      // 3. Persistência do Pedido
+      const pedido = queryRunner.manager.create(Pedido, {
+        ...data, // Pega numero, cliente, cnpj, cep, valor (digitado) e peso (digitado)
+        numero: data.numero.toString(),
+        valor: data.valor ? Number(data.valor) : null,
+        peso: data.peso ? Number(data.peso) : null,
+        cubagem: cubagemFinalPedido, // Valor calculado com a regra / 1000
+        volume: volumeTotalCalculado,
+        lista: itensLista, // Grava os itens automaticamente via cascade
+      });
+
+      const pedidoSalvo = await queryRunner.manager.save(pedido);
+
+      await queryRunner.commitTransaction();
+      return pedidoSalvo;
     } catch (err) {
+      // Se algo der errado (estoque insuficiente ou erro de DB), desfaz tudo
       await queryRunner.rollbackTransaction();
-      throw err; // O NestJS tratará o BadRequest/NotFound automaticamente
+      throw err;
     } finally {
+      // Libera o banco de dados
       await queryRunner.release();
     }
   }

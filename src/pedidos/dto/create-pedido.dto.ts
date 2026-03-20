@@ -4,15 +4,17 @@ import {
   IsArray,
   ValidateNested,
   IsOptional,
-  isNumber,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
+// Classe interna para os itens do pedido
 class ProdutoDto {
   @IsString()
   codigo: string;
 
   @IsNumber()
+  @Min(1) // Garante que ninguém peça 0 ou quantidades negativas
   quantidade: number;
 }
 
@@ -33,22 +35,22 @@ export class CreatePedidoDto {
 
   @IsNumber()
   @IsOptional()
-  valor?: number;
+  valor?: number; // Digitado pelo usuário
 
   @IsNumber()
   @IsOptional()
-  peso?: number;
+  peso?: number; // Digitado pelo usuário
 
   @IsNumber()
   @IsOptional()
-  volume?: number;
+  volume?: number; // Calculado pelo Service (mas aceita vindo do Front)
 
   @IsNumber()
   @IsOptional()
-  cubagem?: number;
+  cubagem?: number; // Calculado pelo Service (mas aceita vindo do Front)
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ProdutoDto)
+  @Type(() => ProdutoDto) // Necessário para o class-transformer instanciar o ProdutoDto
   produtos: ProdutoDto[];
 }
