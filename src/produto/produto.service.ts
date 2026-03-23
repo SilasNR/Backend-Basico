@@ -29,7 +29,7 @@ export class ProdutoService {
     const largura = Number(data.largura || 0);
     const comprimento = Number(data.comprimento || 0);
 
-    const cubagemCalculada = altura * largura * comprimento;
+    const cubagemCalculada = (altura * largura * comprimento) / 100000;
 
     // 3. Cria a entidade com TODOS os campos
     const novoProduto = this.produtoRepository.create({
