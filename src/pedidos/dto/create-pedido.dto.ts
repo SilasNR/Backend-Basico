@@ -31,6 +31,14 @@ export class CreatePedidoDto {
 
   @IsString()
   @IsOptional()
+  municipio?: string;
+
+  @IsString()
+  @IsOptional()
+  uf?: string;
+
+  @IsString()
+  @IsOptional()
   cep?: string;
 
   @IsNumber()

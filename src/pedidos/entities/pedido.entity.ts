@@ -23,6 +23,12 @@ export class Pedido {
   @Column({ type: 'varchar', length: 18, nullable: true })
   cnpj: string | null;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  municipio: string | null;
+
+  @Column({ type: 'varchar', length: 2, nullable: true })
+  uf: string | null;
+
   @Column({ type: 'varchar', length: 9, nullable: true })
   cep: string | null;
 
