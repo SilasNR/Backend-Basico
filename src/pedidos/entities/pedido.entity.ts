@@ -80,6 +80,6 @@ export class Pedido {
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
-  @OneToMany(() => PedidoLista, (lista) => lista.pedido, { cascade: true })
+  @OneToMany(() => PedidoLista, (lista) => lista.pedido, { cascade: true, onDelete: 'CASCADE' })
   lista: PedidoLista[];
 }
