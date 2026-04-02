@@ -3,7 +3,7 @@ import { TransportadoraService } from './transportadora.service';
 import { CreateTransportadoraDto } from './dto/create-transportadora.dto';
 import { UpdateTransportadoraDto } from './dto/update-transportadora.dto';
 
-@Controller('transportadoras')
+@Controller('transportadora')
 export class TransportadoraController {
   constructor(private readonly transportadoraService: TransportadoraService) { }
 
