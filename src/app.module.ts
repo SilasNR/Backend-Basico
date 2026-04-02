@@ -6,7 +6,7 @@ import { Produto } from './produto/entities/produto.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PedidosModule } from './pedidos/pedidos.module';
-import { TransportadorasModule } from './transportadoras/transportadora.module';
+import { TransportadoraModule } from './transportadoras/transportadora.module';
 
 @Module({
   imports: [
@@ -42,7 +42,7 @@ import { TransportadorasModule } from './transportadoras/transportadora.module';
 
     ProdutoModule,
     PedidosModule,
-    TransportadorasModule,
+    TransportadoraModule,
   ],
   controllers: [AppController],
   providers: [AppService],
