@@ -20,12 +20,12 @@ class EstadoDto {
   nome: string;
 
   @IsString()
-  estado: string;
+  sigla: string;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => RegiaoDto) // Necessário para o class-transformer instanciar o Dto
-  produtos: RegiaoDto[];
+  regiao: RegiaoDto[];
 }
 
 export class CreateTransportadoraDto {
@@ -43,5 +43,5 @@ export class CreateTransportadoraDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => EstadoDto) // Necessário para o class-transformer instanciar o Dto
-  produtos: EstadoDto[];
+  estado: EstadoDto[];
 }
