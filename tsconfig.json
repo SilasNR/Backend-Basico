@@ -1,14 +1,21 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
+    // ... suas outras configs
+    "types": ["node", "jest"], 
+    "esModuleInterop": true,
     "target": "ES2022",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "node16",            // Alterado de CommonJS para node16
+    "moduleResolution": "node16", 
+    "rootDir": "./src",
+    "outDir": "./dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "useDefineForClassFields": false,
     "strictPropertyInitialization": false,
     "strict": true,
-    "skipLibCheck": true,
-    "outDir": "./dist"
-  }
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }

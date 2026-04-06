@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PedidosModule } from './pedidos/pedidos.module';
 import { TransportadoraModule } from './transportadoras/transportadora.module';
+//import { SocketGateway } from './socket.gateway';
 
 @Module({
   imports: [
