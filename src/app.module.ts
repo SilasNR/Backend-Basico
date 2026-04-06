@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { PedidosModule } from './pedidos/pedidos.module';
 import { TransportadoraModule } from './transportadoras/transportadora.module';
 //import { SocketGateway } from './socket.gateway';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { TransportadoraModule } from './transportadoras/transportadora.module';
     ProdutoModule,
     PedidosModule,
     TransportadoraModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
