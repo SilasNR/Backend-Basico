@@ -12,6 +12,6 @@ export class Regiao {
     @Column({ type: 'varchar', length: 9, nullable: true })
     cep: string | null;
 
-    @ManyToOne(() => Estado, (regiao) => regiao.lista)
-    regiao: Estado;
+    // @ManyToOne(() => Estado, (regiao) => regiao.lista)
+    // regiao: Estado;
 }

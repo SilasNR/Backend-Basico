@@ -3,7 +3,7 @@ import { Estado } from './estado.entity';
 
 @Entity()
 export class Transportadora {
-@PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ type: 'varchar', length: 50 })
@@ -12,9 +12,9 @@ export class Transportadora {
   @Column({ type: 'varchar', length: 18, nullable: true })
   cnpj: string | null;
 
-  @Column({ type: 'varchar', length: 70 })
-  endereco: string;
+  @Column({ type: 'varchar', length: 70, nullable: true})
+  endereco: string | null;
 
-  @OneToMany(() => Estado, (lista) => lista.estado, { cascade: true, nullable: true })
+  @OneToMany(() => Estado, (lista) => lista.estado, { cascade: true})
   lista: Estado[];
 }

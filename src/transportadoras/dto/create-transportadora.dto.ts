@@ -7,25 +7,27 @@ import {
 import { Type } from 'class-transformer';
 
 // Classe interna para os itens do pedido
-class RegiaoDto {
-  @IsString()
-  nome: string;
+// class MunicipioDto {
+//   @IsString()
+//   nome: string;
 
-  @IsString()
-  cep: string;
-}
+//   @IsString()
+//   cep: string;
+// }
 
 class EstadoDto {
   @IsString()
-  nome: string;
+  @IsOptional()
+  nome?: string;
 
   @IsString()
-  sigla: string;
+  @IsOptional()
+  sigla?: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => RegiaoDto) // Necessário para o class-transformer instanciar o Dto
-  regiao: RegiaoDto[];
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => MunicipioDto) // Necessário para o class-transformer instanciar o Dto
+  // regiao: MunicipioDto[];
 }
 
 export class CreateTransportadoraDto {

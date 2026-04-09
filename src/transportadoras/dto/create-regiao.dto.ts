@@ -2,7 +2,7 @@ import {
   IsString,
 } from 'class-validator';
 
-class CreateRegiaoDto {
+export class CreateRegiaoDto {
   @IsString()
   nome: string;
 

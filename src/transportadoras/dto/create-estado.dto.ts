@@ -1,28 +1,28 @@
 import {
+  IsOptional,
   IsString,
-  IsArray,
-  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 // Classe interna
-class RegiaoDto {
+// class MunicipioDto {
+//   @IsString()
+//   nome: string;
+
+//   @IsString()
+//   cep: string;
+// }
+
+export class CreateEstadoDto {
   @IsString()
-  nome: string;
+  @IsOptional()
+  nome?: string;
 
   @IsString()
-  cep: string;
-}
+  @IsOptional()
+  sigla?: string;
 
-class CreateEstadoDto {
-  @IsString()
-  nome: string;
-
-  @IsString()
-  estado: string;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => RegiaoDto) // Necessário para o class-transformer instanciar o ProdutoDto
-  produtos: RegiaoDto[];
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => MunicipioDto) // Necessário para o class-transformer instanciar o ProdutoDto
+  // produtos: MunicipioDto[];
 }
