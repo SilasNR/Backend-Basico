@@ -33,24 +33,30 @@ export class TransportadoraService {
     try {
       const itensLista: Estado[] = [];
 
+      // O JSON envia "estado", o código percorre "data.estado"
       for (const item of data.estado) {
-        // 1. Buscamos o estado que já existe
-        const estadoAtual = await queryRunner.manager.findOne(Estado, {
-          where: { Nome: item.nome },
+        // 1. Buscamos o estado que JÁ EXISTE no banco de dados
+        const estadoExistente = await queryRunner.manager.findOne(Estado, {
+          where: { Nome: item.nome }, // Verifique se na sua Entity o campo é "Nome" ou "nome"
         });
 
-        if (!estadoAtual) {
+        if (!estadoExistente) {
           throw new NotFoundException(`Estado ${item.nome} não encontrado`);
         }
 
-        // 2. CORREÇÃO: Adicione o estado retornado do banco, NÃO use o .create()
-        itensLista.push(estadoAtual);
+        // 2. CORREÇÃO CRÍTICA: Adicionamos o objeto retornado do banco à lista.
+        // NÃO use queryRunner.manager.create(Estado, ...) aqui, 
+        // pois isso tentaria inserir um novo registro de Estado.
+        itensLista.push(estadoExistente);
       }
 
-      // 3. Criamos a transportadora vinculando os estados existentes
+      // 3. Criamos a transportadora associando os estados encontrados
       const transportadora = queryRunner.manager.create(Transportadora, {
-        ...data, // O spread já traz nome, cnpj, endereco se os nomes no DTO forem iguais aos da Entity
-        lista: itensLista,
+        ...data,
+        nome: data.nome,
+        endereco: data.endereco,
+        cnpj: data.cnpj ? String(data.cnpj) : null,
+        lista: itensLista, // Aqui o TypeORM faz o vínculo (relação)
       });
 
       const transportadoraSalva = await queryRunner.manager.save(transportadora);
