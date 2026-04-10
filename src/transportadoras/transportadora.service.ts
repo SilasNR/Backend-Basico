@@ -34,28 +34,22 @@ export class TransportadoraService {
       const itensLista: Estado[] = [];
 
       for (const item of data.estado) {
-        const produtoAtual = await queryRunner.manager.findOne(Estado, {
+        // 1. Buscamos o estado que já existe
+        const estadoAtual = await queryRunner.manager.findOne(Estado, {
           where: { Nome: item.nome },
-          lock: { mode: 'pessimistic_write' }, // Bloqueia o produto para evitar venda dupla
         });
 
-        if (!produtoAtual) {
+        if (!estadoAtual) {
           throw new NotFoundException(`Estado ${item.nome} não encontrado`);
         }
 
-        // Preparar item para a Lista (Relacionamento)
-        const novoItemLista = queryRunner.manager.create(Estado, {
-          Nome: item.nome,
-          Sigla: item.sigla,
-        });
-        itensLista.push(novoItemLista);
+        // 2. CORREÇÃO: Adicione o estado retornado do banco, NÃO use o .create()
+        itensLista.push(estadoAtual);
       }
 
+      // 3. Criamos a transportadora vinculando os estados existentes
       const transportadora = queryRunner.manager.create(Transportadora, {
-        ...data,
-        nome:  String(data.nome),
-        cnpj: data.cnpj ? String(data.cnpj) : null,
-        endereco: data.endereco ? String(data.endereco) : null,
+        ...data, // O spread já traz nome, cnpj, endereco se os nomes no DTO forem iguais aos da Entity
         lista: itensLista,
       });
 
@@ -63,11 +57,10 @@ export class TransportadoraService {
 
       await queryRunner.commitTransaction();
       return transportadoraSalva;
-    } catch(err) {
+    } catch (err) {
       await queryRunner.rollbackTransaction();
       throw err;
-    }finally {
-      // Libera o banco de dados
+    } finally {
       await queryRunner.release();
     }
   }
