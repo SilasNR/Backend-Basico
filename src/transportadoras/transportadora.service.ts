@@ -31,32 +31,40 @@ export class TransportadoraService {
     await queryRunner.startTransaction();
 
     try {
+      // 1. DEDUPLICAÇÃO: Remove estados repetidos que vieram no JSON
+      // Usamos o nome como chave para garantir que cada estado seja único nesta transportadora
+      const estadosUnicos = Array.from(
+        new Map(data.estado.map((item) => [item.nome?.toLowerCase().trim(), item])).values()
+      );
+
       const itensLista: Estado[] = [];
 
-      // O JSON envia "estado", o código percorre "data.estado"
-      for (const item of data.estado) {
-        // 1. Buscamos o estado que JÁ EXISTE no banco de dados
-        const estadoExistente = await queryRunner.manager.findOne(Estado, {
-          where: { Nome: item.nome }, // Verifique se na sua Entity o campo é "Nome" ou "nome"
+      for (const item of estadosUnicos) {
+        // 2. BUSCA OU CRIA: Verifica se o estado já existe no banco global
+        // (Para não criar um novo ID para "SP" toda vez que cadastrar uma transportadora nova)
+        let estado = await queryRunner.manager.findOne(Estado, {
+          where: { Nome: item.nome },
         });
 
-        if (!estadoExistente) {
-          throw new NotFoundException(`Estado ${item.nome} não encontrado`);
+        if (!estado) {
+          // Se não existe no banco, cria um novo
+          estado = queryRunner.manager.create(Estado, {
+            Nome: item.nome,
+            Sigla: item.sigla,
+          });
+          estado = await queryRunner.manager.save(estado);
         }
 
-        // 2. CORREÇÃO CRÍTICA: Adicionamos o objeto retornado do banco à lista.
-        // NÃO use queryRunner.manager.create(Estado, ...) aqui, 
-        // pois isso tentaria inserir um novo registro de Estado.
-        itensLista.push(estadoExistente);
+        itensLista.push(estado);
       }
 
-      // 3. Criamos a transportadora associando os estados encontrados
+      // 3. CRIAÇÃO DA TRANSPORTADORA
       const transportadora = queryRunner.manager.create(Transportadora, {
         ...data,
-        nome: data.nome,
-        endereco: data.endereco,
+        nome: String(data.nome),
         cnpj: data.cnpj ? String(data.cnpj) : null,
-        lista: itensLista, // Aqui o TypeORM faz o vínculo (relação)
+        endereco: data.endereco ? String(data.endereco) : null,
+        lista: itensLista, // Aqui salvamos a lista sem duplicados
       });
 
       const transportadoraSalva = await queryRunner.manager.save(transportadora);
