@@ -5,6 +5,7 @@ import {
   ValidateNested,
   IsOptional,
   Min,
+  IsDate,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -16,6 +17,24 @@ class ProdutoDto {
   @IsNumber()
   @Min(1) // Garante que ninguém peça 0 ou quantidades negativas
   quantidade: number;
+
+  @IsNumber()
+  @IsOptional()
+  valor?: number;
+}
+
+class CotacaoDto {
+  @IsString()
+  tranportadora: string;
+
+  @IsString()
+  numero: number;
+
+  @IsDate()
+  data: Date;
+
+  @IsString()
+  prazo: string;
 
   @IsNumber()
   @IsOptional()
@@ -73,4 +92,9 @@ export class CreatePedidoDto {
   @ValidateNested({ each: true })
   @Type(() => ProdutoDto) // Necessário para o class-transformer instanciar o ProdutoDto
   produtos: ProdutoDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CotacaoDto) // Necessário para o class-transformer instanciar o ProdutoDto
+  cotacao: CotacaoDto[];
 }

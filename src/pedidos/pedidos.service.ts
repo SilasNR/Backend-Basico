@@ -10,6 +10,7 @@ import { Pedido } from './entities/pedido.entity';
 import { PedidoLista } from './entities/pedido-lista.entity';
 import { Produto } from '../produto/entities/produto.entity';
 import { Repository, DataSource } from 'typeorm';
+import { Cotacao } from './entities/cotacao.entity';
 
 @Injectable()
 export class PedidosService {
@@ -32,6 +33,7 @@ export class PedidosService {
       let somaCubagemBruta = 0; // Acumulador da cubagem de todos os produtos
       let volumeTotalCalculado = 0; // Soma das quantidades
       const itensLista: PedidoLista[] = [];
+      const cotacaoLista: Cotacao[] = [];
 
       // 1. Processamento dos Itens
       for (const item of data.produtos) {
@@ -70,6 +72,25 @@ export class PedidosService {
         await queryRunner.manager.save(produtoAtual);
       }
 
+      for(const item of data.cotacao){
+        const cotacaoAtual = await queryRunner.manager.findOne(Cotacao, {
+          where: { numero: item.numero },
+          lock: { mode: 'pessimistic_write' }, // Bloqueia o produto para evitar venda dupla
+        });
+
+        if (!cotacaoAtual) {
+          throw new NotFoundException(`Produto ${item.numero} não encontrado`);
+        }
+
+        const novaCotacaoLista = queryRunner.manager.create(Cotacao, {
+          numero: Number(item.numero),
+          transportadora: item.tranportadora,
+          prazo: item.prazo,
+          valor: item.valor
+        });
+        cotacaoLista.push(novaCotacaoLista);
+      }
+
       // 2. APLICAÇÃO DA REGRA DOS 1000:
       // A cubagem total do pedido é a soma de todos os produtos dividida por 1000
       const cubagemFinalPedido = somaCubagemBruta / 1000;
@@ -82,8 +103,10 @@ export class PedidosService {
         valor: data.valor ? Number(data.valor) : null,
         peso: data.peso ? Number(data.peso) : null,
         cubagem: cubagemFinalPedido, // Valor calculado com a regra / 1000
+        status: data.status,
         volume: volumeTotalCalculado,
         lista: itensLista, // Grava os itens automaticamente via cascade
+        cotacao: cotacaoLista,
       });
 
       const pedidoSalvo = await queryRunner.manager.save(pedido);

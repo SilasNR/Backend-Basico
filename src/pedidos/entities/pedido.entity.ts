@@ -8,6 +8,7 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import { PedidoLista } from './pedido-lista.entity';
+import { Cotacao } from './cotacao.entity';
 
 @Entity()
 export class Pedido {
@@ -74,7 +75,7 @@ export class Pedido {
   @Column({ type: 'int', nullable: true })
   nf: number | null;
 
-  @Column({ type: 'varchar', length: 10 , nullable: true})
+  @Column({ type: 'varchar', length: 10, nullable: true })
   status: string;
 
   @CreateDateColumn({ name: 'created_at' })
@@ -86,6 +87,9 @@ export class Pedido {
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
-  @OneToMany(() => PedidoLista, (lista) => lista.pedido, { cascade: true})
+  @OneToMany(() => PedidoLista, (lista) => lista.pedido, { cascade: true })
   lista: PedidoLista[];
+
+  @OneToMany(() => Cotacao, (lista) => lista.pedido, { cascade: true })
+  cotacao: Cotacao[];
 }
