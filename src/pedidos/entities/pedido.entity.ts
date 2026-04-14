@@ -74,7 +74,7 @@ export class Pedido {
   @Column({ type: 'int', nullable: true })
   nf: number | null;
 
-  @Column({ type: 'varchar', length: 10 })
+  @Column({ type: 'varchar', length: 10 , nullable: true})
   status: string;
 
   @CreateDateColumn({ name: 'created_at' })
