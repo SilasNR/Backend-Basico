@@ -16,6 +16,10 @@ class ProdutoDto {
   @IsNumber()
   @Min(1) // Garante que ninguém peça 0 ou quantidades negativas
   quantidade: number;
+
+  @IsNumber()
+  @IsOptional()
+  valor?: number;
 }
 
 export class CreatePedidoDto {
@@ -56,6 +60,14 @@ export class CreatePedidoDto {
   @IsNumber()
   @IsOptional()
   cubagem?: number; // Calculado pelo Service (mas aceita vindo do Front)
+
+  @IsNumber()
+  @IsOptional()
+  nf?: number;
+
+  @IsString()
+  @IsOptional()
+  status?: string;
 
   @IsArray()
   @ValidateNested({ each: true })

@@ -13,6 +13,10 @@ export class CreateProdutoDto {
   quantidade: number;
 
   @IsNumber()
+  @IsOptional()
+  valor?: number;
+
+  @IsNumber()
   @Min(1) // Geralmente um pacote tem pelo menos 1 item
   pacote: number;
 

@@ -1,4 +1,4 @@
-import { IsNumber, Min } from 'class-validator';
+import { IsNumber, Min , IsOptional, } from 'class-validator';
 
 export class CreatePedidoListaDto {
   @IsNumber()
@@ -7,4 +7,8 @@ export class CreatePedidoListaDto {
   @IsNumber()
   @Min(1, { message: 'A quantidade deve ser pelo menos 1' })
   quantidade: number;
+
+  @IsNumber()
+  @IsOptional()
+  valor?: number;
 }

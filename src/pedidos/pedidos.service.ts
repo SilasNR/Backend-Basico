@@ -78,6 +78,7 @@ export class PedidosService {
       const pedido = queryRunner.manager.create(Pedido, {
         ...data, // Pega numero, cliente, cnpj, cep, valor (digitado) e peso (digitado)
         numero: data.numero.toString(),
+        municipio: data.municipio+"-"+data.uf,
         valor: data.valor ? Number(data.valor) : null,
         peso: data.peso ? Number(data.peso) : null,
         cubagem: cubagemFinalPedido, // Valor calculado com a regra / 1000

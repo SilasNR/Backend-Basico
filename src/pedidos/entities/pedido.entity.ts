@@ -71,6 +71,12 @@ export class Pedido {
   })
   cubagem: number | null;
 
+  @Column({ type: 'int', nullable: true })
+  nf: number | null;
+
+  @Column({ type: 'varchar', length: 10 })
+  status: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

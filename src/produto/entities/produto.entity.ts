@@ -14,6 +14,9 @@ export class Produto {
   @Column({ type: 'int', default: 0 })
   quantidade: number;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  valor?: number;
+
   // Medidas do Pacote Padrão
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   altura: number;
